@@ -1,0 +1,21 @@
+input,expected_category,expected_units,expected_decision
+beer 500ml,beer,1.0,continue
+one glass of wine,wine,1.2,continue
+whiskey shot,spirit,1.0,continue
+2 beers,mixed,2.0,caution
+2 beers and 1 whiskey shot,mixed,3.0,caution
+3 margaritas,cocktail,4.5,stop
+mojito,cocktail,1.3,continue
+light cocktail,cocktail,1.0,continue
+a couple drinks,ambiguous,2.0,caution
+vodka soda,spirit,1.2,continue
+red wine 250ml,wine,2.4,caution
+beer pint,beer,1.3,continue
+2 glasses of wine,wine,2.4,caution
+3 beers,beer,3.0,caution
+4 beers,beer,4.0,stop
+rum and coke,cocktail,1.2,continue
+two whiskey shots,spirit,2.0,caution
+champagne glass,wine,1.0,continue
+one strong cocktail,cocktail,1.8,caution
+several drinks,ambiguous,3.0,caution
