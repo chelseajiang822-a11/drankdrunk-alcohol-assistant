@@ -34,26 +34,35 @@ if "history" not in st.session_state:
 
 
 def extract_json(text):
-    """Extract JSON object from model output."""
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
-        raise ValueError("No JSON object found in model output.")
+        raise ValueError("No JSON object found.")
     return json.loads(match.group(0))
 
 
+def safe_number(value, default):
+    try:
+        if value is None or value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
 def fallback_parse_drink(user_input):
-    """Rule-based fallback parser for reliability."""
     text = user_input.lower()
     drinks = []
 
-    def get_quantity(word):
-        if "4" in word or "four" in word:
+    def quantity_from_text(t):
+        if "4" in t or "four" in t:
             return 4
-        if "3" in word or "three" in word or "several" in word:
+        if "3" in t or "three" in t or "several" in t:
             return 3
-        if "2" in word or "two" in word or "couple" in word:
+        if "2" in t or "two" in t or "couple" in t:
             return 2
         return 1
+
+    quantity = quantity_from_text(text)
 
     if "beer" in text:
         drinks.append({
@@ -61,7 +70,7 @@ def fallback_parse_drink(user_input):
             "drink_summary": "beer",
             "abv_pct": 5,
             "volume_ml": 330,
-            "quantity": get_quantity(text)
+            "quantity": quantity
         })
 
     if "wine" in text or "champagne" in text:
@@ -70,7 +79,7 @@ def fallback_parse_drink(user_input):
             "drink_summary": "wine",
             "abv_pct": 12,
             "volume_ml": 150,
-            "quantity": get_quantity(text)
+            "quantity": quantity
         })
 
     if "whiskey" in text or "vodka" in text or "rum" in text or "shot" in text:
@@ -79,7 +88,7 @@ def fallback_parse_drink(user_input):
             "drink_summary": "spirit shot",
             "abv_pct": 40,
             "volume_ml": 30,
-            "quantity": get_quantity(text)
+            "quantity": quantity
         })
 
     if "mojito" in text or "margarita" in text or "cocktail" in text:
@@ -88,7 +97,7 @@ def fallback_parse_drink(user_input):
             "drink_summary": "cocktail",
             "abv_pct": 12,
             "volume_ml": 150,
-            "quantity": get_quantity(text)
+            "quantity": quantity
         })
 
     if not drinks:
@@ -97,7 +106,7 @@ def fallback_parse_drink(user_input):
             "drink_summary": user_input,
             "abv_pct": 12,
             "volume_ml": 150,
-            "quantity": get_quantity(text)
+            "quantity": quantity
         })
 
     category = "mixed" if len(drinks) > 1 else drinks[0]["category"]
@@ -116,11 +125,12 @@ You are an alcohol intake parsing assistant.
 
 Convert the user's natural-language drink input into valid JSON only.
 
-Important rules:
+Rules:
 - Return JSON only. No markdown. No explanation.
 - If multiple drink types are mentioned, category must be "mixed".
 - Split multiple drinks into a drinks list.
-- Estimate missing information using common default assumptions.
+- Do not return null values.
+- If the input is vague, use reasonable default assumptions.
 - "couple" means 2.
 - "several" means 3.
 
@@ -129,8 +139,9 @@ Default assumptions:
 - wine glass: 150ml, 12% ABV
 - spirit shot: 30ml, 40% ABV
 - cocktail: 150ml, 12% ABV
+- ambiguous drink: 150ml, 12% ABV
 
-Return exactly this structure:
+Return exactly this JSON structure:
 {{
   "category": "beer/wine/spirit/cocktail/mixed/ambiguous",
   "drink_summary": "short summary",
@@ -152,7 +163,10 @@ User input: {user_input}
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[
-            {"role": "system", "content": "You are a strict JSON generator. Return only valid JSON."},
+            {
+                "role": "system",
+                "content": "You are a strict JSON generator. Return only valid JSON with no markdown."
+            },
             {"role": "user", "content": prompt}
         ],
         temperature=0
@@ -170,22 +184,54 @@ def calculate_units_for_drink(abv_pct, volume_ml, quantity):
 
 def calculate_total_units(drinks):
     total = 0
+
     for drink in drinks:
-        total += calculate_units_for_drink(
-            float(drink["abv_pct"]),
-            float(drink["volume_ml"]),
-            float(drink["quantity"])
-        )
+        category = str(drink.get("category", "ambiguous")).lower()
+
+        default_abv = 12
+        default_volume = 150
+
+        if category == "beer":
+            default_abv = 5
+            default_volume = 330
+        elif category == "wine":
+            default_abv = 12
+            default_volume = 150
+        elif category == "spirit":
+            default_abv = 40
+            default_volume = 30
+        elif category == "cocktail":
+            default_abv = 12
+            default_volume = 150
+        elif category == "ambiguous":
+            default_abv = 12
+            default_volume = 150
+
+        abv_pct = safe_number(drink.get("abv_pct"), default_abv)
+        volume_ml = safe_number(drink.get("volume_ml"), default_volume)
+        quantity = safe_number(drink.get("quantity"), 1)
+
+        total += calculate_units_for_drink(abv_pct, volume_ml, quantity)
+
     return round(total, 2)
 
 
 def make_decision(units):
     if units <= 1.5:
-        return "continue", "Your estimated intake is relatively low. Continue carefully and stay hydrated."
+        return (
+            "continue",
+            "Your estimated intake is relatively low. Continue carefully and stay hydrated."
+        )
     elif units <= 3.0:
-        return "caution", "Your intake is increasing. Consider slowing down, drinking water, and avoiding more alcohol."
+        return (
+            "caution",
+            "Your intake is increasing. Consider slowing down, drinking water, and avoiding more alcohol."
+        )
     else:
-        return "stop", "Your estimated intake is high. It is safer to stop drinking alcohol for now."
+        return (
+            "stop",
+            "Your estimated intake is high. It is safer to stop drinking alcohol for now."
+        )
 
 
 drink_input = st.text_input(
@@ -205,22 +251,35 @@ if st.button("Analyze Drink"):
             parsed = fallback_parse_drink(drink_input)
             used_fallback = True
 
-        units = calculate_total_units(parsed["drinks"])
+        try:
+            drinks = parsed.get("drinks", [])
+            if not drinks:
+                raise ValueError("No drinks found.")
+
+            units = calculate_total_units(drinks)
+        except Exception:
+            parsed = fallback_parse_drink(drink_input)
+            units = calculate_total_units(parsed["drinks"])
+            used_fallback = True
+
         decision, reason = make_decision(units)
 
         st.divider()
         st.subheader("Result")
 
         col1, col2, col3 = st.columns(3)
-        col1.metric("Category", parsed["category"])
+        col1.metric("Category", parsed.get("category", "ambiguous"))
         col2.metric("Alcohol Units", units)
         col3.metric("Decision", decision.upper())
 
-        st.write("**Drink Summary:**", parsed["drink_summary"])
-        st.write("**Confidence:**", parsed["confidence"])
+        st.write("**Drink Summary:**", parsed.get("drink_summary", drink_input))
+        st.write("**Confidence:**", parsed.get("confidence", "medium"))
 
         if used_fallback:
-            st.info("AI parsing was unavailable or returned invalid JSON, so the app used a rule-based fallback parser.")
+            st.info(
+                "AI parsing was unavailable or returned incomplete output, "
+                "so the app used a rule-based fallback parser."
+            )
 
         st.write("**Parsed Drinks:**")
         drinks_df = pd.DataFrame(parsed["drinks"])
@@ -230,7 +289,7 @@ if st.button("Analyze Drink"):
 
         st.session_state.history.append({
             "input": drink_input,
-            "category": parsed["category"],
+            "category": parsed.get("category", "ambiguous"),
             "units": units,
             "decision": decision,
             "parser": "fallback" if used_fallback else "AI"
