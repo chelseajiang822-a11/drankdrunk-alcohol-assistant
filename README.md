@@ -68,3 +68,8 @@ Decision: caution
 Reason: Your intake is increasing. Consider slowing down, drinking water, and avoiding more alcohol.
 
 The app also includes a lifestyle log that saves each drink entry during the session.
+
+
+
+source .venv/bin/activate
+streamlit run app.py
