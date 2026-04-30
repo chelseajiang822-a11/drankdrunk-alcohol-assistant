@@ -65,6 +65,7 @@ This section demonstrates how the application works through real examples.
 Users can manually input drink details, including volume (ml) and alcohol content (%ABV).
 
 Example:
+
 - Drink: Cheese Milk Cap  
 - Volume: 100 ml  
 - Alcohol Content: 11%  
@@ -82,6 +83,7 @@ This design allows flexibility for real-world drinks with varying compositions.
 The system logs each drink within a session and continuously updates total alcohol intake.
 
 Key features:
+
 - Real-time cumulative alcohol units  
 - Per-drink breakdown (volume, ABV, timestamp)  
 - Immediate decision feedback (Continue / Caution / Stop)
@@ -100,6 +102,7 @@ The system helps users make safer decisions based on their current intake level.
 The statistics dashboard provides insights into drinking behavior over time.
 
 Key features:
+
 - Most frequently consumed drinks  
 - Total alcohol units per category  
 - Calendar-based consumption patterns  
@@ -119,7 +122,8 @@ The system includes a simple profile and personalization feature:
 - Session summary metrics  
 
 The personal limit directly influences decision thresholds:
-- Below 50% → Continue  
+
+- Below 50% → Continue
 - 50–85% → Caution  
 - Above 85% → Stop  
 
