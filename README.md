@@ -56,15 +56,73 @@ The comparison showed that the app is more convenient than the spreadsheet basel
 
 ## 4. Artifact Snapshot
 
-Example input:
+This section demonstrates how the application works through real examples.
 
-```text
-2 beers and 1 whiskey shot
+---
 
-Example output:
-Category: mixed
-Estimated Alcohol Units: 3.0
-Decision: caution
-Reason: Your intake is increasing. Consider slowing down, drinking water, and avoiding more alcohol.
+### Example 1: Drink Input & Unit Calculation
 
-The app also includes a lifestyle log that saves each drink entry during the session.
+Users can manually input drink details, including volume (ml) and alcohol content (%ABV).
+
+Example:
+- Drink: Cheese Milk Cap  
+- Volume: 100 ml  
+- Alcohol Content: 11%  
+
+The system calculates alcohol units directly from these values, ensuring transparency and accuracy without relying on predefined drink categories.
+
+This design allows flexibility for real-world drinks with varying compositions.
+
+![Drink Analyzer](./screenshots/main.png)
+
+---
+
+### Example 2: Session Tracking & Decision Feedback
+
+The system logs each drink within a session and continuously updates total alcohol intake.
+
+Key features:
+- Real-time cumulative alcohol units  
+- Per-drink breakdown (volume, ABV, timestamp)  
+- Immediate decision feedback (Continue / Caution / Stop)
+
+This supports a clear workflow:
+input → calculate → accumulate → decision → feedback
+
+The system helps users make safer decisions based on their current intake level.
+
+![Session Log](./screenshots/main.png)
+
+---
+
+### Example 3: Statistics & User Behavior Insights
+
+The statistics dashboard provides insights into drinking behavior over time.
+
+Key features:
+- Most frequently consumed drinks  
+- Total alcohol units per category  
+- Calendar-based consumption patterns  
+
+This transforms raw tracking data into meaningful behavioral insights, supporting long-term awareness.
+
+![Stats](./screenshots/stats.png)
+
+---
+
+### Example 4: Personalized Profile & Limits
+
+The system includes a simple profile and personalization feature:
+
+- Custom username and avatar  
+- Adjustable daily alcohol limit  
+- Session summary metrics  
+
+The personal limit directly influences decision thresholds:
+- Below 50% → Continue  
+- 50–85% → Caution  
+- Above 85% → Stop  
+
+This demonstrates a personalized workflow tailored to individual users.
+
+![Profile](./screenshots/profile.png)
