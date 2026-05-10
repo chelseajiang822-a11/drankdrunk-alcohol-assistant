@@ -110,38 +110,6 @@ These descriptions are difficult because the alcohol percentage, serving size, o
 
 Human judgment is still necessary whenever drink details are uncertain. The app should be treated as a lightweight reflection tool rather than an authority on alcohol safety.
 
-### What Counted as Good Output
-
-A good output needed to satisfy three conditions:
-
-1. The drink category is reasonable.
-2. The alcohol-unit estimate is close enough for educational use.
-3. The decision cue matches the expected intake level.
-
-### Evaluation Cases
-
-| Test Input | Expected Category | Expected Units | Expected Decision |
-|---|---|---|---|
-| beer 500ml | beer | 1.0 | Continue |
-| one glass of wine | wine | 1.2 | Continue |
-| whiskey shot | spirit | 1.0 | Continue |
-| 2 beers | mixed | 2.0 | Caution |
-| 2 beers and 1 whiskey shot | mixed | 3.0 | Caution |
-| 3 margaritas | cocktail | 4.5 | Stop |
-| mojito | cocktail | 1.3 | Continue |
-| a couple drinks | ambiguous | 2.0 | Caution |
-| vodka soda | spirit | 1.2 | Continue |
-| several drinks | ambiguous | 3.0 | Caution |
-
-### Baseline Comparison
-
-| Dimension | Manual Spreadsheet Baseline | DrankDrunk App |
-|---|---|---|
-| Input effort | User manually fills multiple structured fields | User types natural-language drink descriptions |
-| Flexibility | Requires exact values | Handles informal language |
-| Speed | Slower in social settings | Faster for common drinks |
-| Reliability | Strong with exact measurements | Strong for common drinks, weaker for vague inputs |
-
 ```
 
 ## 4. Artifact Snapshot
