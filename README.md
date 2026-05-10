@@ -41,15 +41,15 @@ The project intentionally uses a simple architecture:
 - one LLM
 - rule-based calculations
 
-A retrieval system (RAG), multi-agent workflow, or external database would add complexity without improving this narrow workflow. A spreadsheet or form-based baseline requires rigid input, while this app can handle natural expressions such as “a couple drinks” or “one strong cocktail.”
+A retrieval system (RAG), multi-agent workflow, or external database would add complexity without improving this narrow workflow.
+
+A spreadsheet or form-based baseline requires rigid input, while this app can handle natural expressions such as “a couple drinks” or “one strong cocktail.”
 
 ## 3. Evaluation and Results
 
 I evaluated the app using a fixed test set of 20 realistic drink inputs. The test set included simple drinks, cocktails, mixed drinks, and ambiguous inputs.
 
 The baseline was manual spreadsheet tracking. In the baseline workflow, users manually enter drink type, ABV, volume, and quantity before calculating alcohol intake.
-
-Evaluation dimensions:
 
 ### What Counted as Good Output
 
@@ -142,23 +142,7 @@ A good output needed to satisfy three conditions:
 | Speed | Slower in social settings | Faster for common drinks |
 | Reliability | Strong with exact measurements | Strong for common drinks, weaker for vague inputs |
 
-### Example Walkthrough
-
-Input:
-
-```text
-2 beers and 1 whiskey shot
 ```
-
-Output:
-
-- Estimated alcohol units: 3.0
-- Decision: Caution
-- Session total updated automatically
-
-This demonstrates the workflow:
-
-natural-language input → structured parsing → alcohol estimation → decision support
 
 ## 4. Artifact Snapshot
 
